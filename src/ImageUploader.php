@@ -31,8 +31,8 @@ class ImageUploader {
             if ($watermark->watermarkImagePath === null) {
                 return Error('Watermark text is not currently supported');
             }
-            $watermarkImage = new Imagick(realpath($watermark->watermarkImagePath));
-            $watermarkPos = getWatermarkPos($watermark, $watermarkImage, $imagick);
+            $watermarkImage = new Imagick(realpath(\resource_path($watermark->watermarkImagePath)));
+            $watermarkPos = $this->getWatermarkPos($watermark, $watermarkImage, $imagick);
             $imagick->compositeImage($watermarkImage, Imagick::COMPOSITE_OVER, $watermarkPos->width, $watermarkPos->height);
         }
 
@@ -52,11 +52,11 @@ class ImageUploader {
             $imagick->setImageFormat('jpg');
             $imagick->stripImage();
             if ($watermark) {
-                if ($watermark->watermarkImagePath === null) {
-                    return Error('Watermark text is not currently supported');
+                if ($watermark->retinaWatermarkImagePath === null) {
+                    throw new \Error('Watermark text is not currently supported');
                 }
-                $watermarkImage = new Imagick(realpath($watermark->retinaWatermarkImagePath));
-                $watermarkPos = getWatermarkPos($watermark, $watermarkImage, $imagick, true);
+                $watermarkImage = new Imagick(realpath(\resource_path($watermark->retinaWatermarkImagePath)));
+                $watermarkPos = $this->getWatermarkPos($watermark, $watermarkImage, $imagick, true);
                 $imagick->compositeImage($watermarkImage, Imagick::COMPOSITE_OVER, $watermarkPos->width, $watermarkPos->height);
             }
             $imagick->writeImage(public_path($this->pathToSave) . $imageNameRetina);
@@ -82,8 +82,9 @@ class ImageUploader {
         }
     }
 
-    private function getWatermarkPos($watermark, $watermarkImage, $imagick) {
-        if ($watermark->pos == Position::bottomRight) {
+    private function getWatermarkPos($watermark, $watermarkImage, $imagick, $retina = false) {
+        $retinaMultiple = $retina ? 2 : 1;
+        if ($watermark->pos == Position::BottomRight) {
             $x = $imagick->getImageWidth() - $watermarkImage->getImageWidth() - (15 * $retinaMultiple);
             $y = $imagick->getImageHeight() - $watermarkImage->getImageHeight() - (10 * $retinaMultiple);
             return new Size($x, $y);

@@ -7,7 +7,7 @@ class Size {
     public $width;
     function __construct($width = 0, $height = 0) {
         if ($width === 0 && $height === 0) {
-            throw Error('Width and Height cannot both be null');
+            throw new \Error('Width and Height cannot both be null');
         }
         $this->width = $width;
         $this->height = $height;
