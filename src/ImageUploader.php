@@ -16,20 +16,37 @@ class ImageUploader {
     
     public function save($path, Size $size, Watermark $watermark = null, Size $thumb = null, $quality = 80) {
 
+        $imageFullpath = null;
+        $imageFullpathRetina = null;
+        $thumbFullpath = null;
+        $thumbFullpathRetina = null;
+
         // create folder if not exists
         if (!file_exists($this->pathToSave)) {
             mkdir($this->pathToSave, 0755, true);
         }
 
-        $imageFullpath = $this->modifyAndSave($path, $size, $watermark, $thumb, $quality, false);
-
+        // Normal size
+        $imageFullpath = $this->modifyAndSave($path, $size, $watermark, $quality, false);
+        // Retina size
         if ($this->saveRetina) {
-            $imageFullpathRetina = $this->modifyAndSave($path, $size, $watermark, $thumb, $quality, true);
+            $imageFullpathRetina = $this->modifyAndSave($path, $size, $watermark, $quality, true);
+        }
+        // thumb size
+
+        
+        if ($thumb) {
+            $thumbFullpath = $this->modifyAndSave($path, $thumb, null, $quality, false); // no watermark for thumbs
+            if ($this->saveRetina) {
+                $thumbFullpathRetina = $this->modifyAndSave($path, $thumb, null, $quality, true);
+            }
         }
 
         return [
             'image_url' => $imageFullpath,
-            'image_url_retina' => $imageFullpathRetina
+            'image_url_retina' => $imageFullpathRetina,
+            'thumb_url' => $thumbFullpath,
+            'thumb_url_retina' => $thumbFullpathRetina
         ];
     }
 
@@ -58,7 +75,7 @@ class ImageUploader {
     }
 
 
-    private function modifyAndSave($path, Size $size, Watermark $watermark = null, Size $thumb = null, $quality = null, $retina = false) {
+    private function modifyAndSave($path, Size $size, Watermark $watermark = null, $quality = null, $retina = false) {
 
         $imagick = new Imagick(realpath($path));
 
