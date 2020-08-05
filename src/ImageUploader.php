@@ -86,6 +86,9 @@ class ImageUploader {
             $watermarkImagePath = $retina ? $watermark->watermarkImagePath : $watermark->retinaWatermarkImagePath;
             // Watermark image
             if ($watermarkImagePath !== null) {
+                if (!file_exists(realpath(\resource_path($watermarkImagePath)))) {
+                    throw new \Error("Watermark image '$watermarkImagePath' not found in resource folder");
+                }
                 $watermarkImage = new Imagick(realpath(\resource_path($watermarkImagePath)));
                 $watermarkPos = $this->getWatermarkPos($watermark, $watermarkImage, $imagick);
                 $imagick->compositeImage($watermarkImage, Imagick::COMPOSITE_OVER, $watermarkPos->width, $watermarkPos->height);
