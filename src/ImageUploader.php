@@ -51,7 +51,7 @@ class ImageUploader {
             $x = $imagick->getImageWidth() - $pos["textWidth"] - (25 * $retinaMultiple);
             $y = $imagick->getImageHeight() - $pos["textHeight"] - (10 * $retinaMultiple);
         } else {
-            $x = $imagick->getImageWidth() - $watermarkImage->getImageWidth() - (25 * $retinaMultiple);
+            $x = $imagick->getImageWidth() - $watermarkImage->getImageWidth() - (15 * $retinaMultiple);
             $y = $imagick->getImageHeight() - $watermarkImage->getImageHeight() - (10 * $retinaMultiple);
         }
         return new Size($x, $y);
@@ -83,14 +83,14 @@ class ImageUploader {
         $imagick->stripImage();
 
         if ($watermark) {
-            $watermarkImagePath = $retina ? $watermark->watermarkImagePath : $watermark->retinaWatermarkImagePath;
+            $watermarkImagePath = $retina ? $watermark->retinaWatermarkImagePath : $watermark->watermarkImagePath;
             // Watermark image
             if ($watermarkImagePath !== null) {
                 if (!file_exists(realpath(\resource_path($watermarkImagePath)))) {
                     throw new \Error("Watermark image '$watermarkImagePath' not found in resource folder");
                 }
                 $watermarkImage = new Imagick(realpath(\resource_path($watermarkImagePath)));
-                $watermarkPos = $this->getWatermarkPos($watermark, $watermarkImage, $imagick);
+                $watermarkPos = $this->getWatermarkPos($watermark, $watermarkImage, $imagick, $retina);
                 $imagick->compositeImage($watermarkImage, Imagick::COMPOSITE_OVER, $watermarkPos->width, $watermarkPos->height);
             // not an image nor text provided
             } else if ($watermark->text === null) {
